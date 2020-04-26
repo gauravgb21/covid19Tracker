@@ -1,0 +1,127 @@
+.individual-box-total {
+    display: inline-block;
+    margin: 2px;
+}
+
+.confirmed-text {
+    color: #6C757D;
+    font-weight: 500;
+}
+
+
+.active-text {
+    color: orange;
+    font-weight: 500;
+}
+
+
+.recovered-text {
+    color: #28a745;
+    font-weight: 500;
+}
+
+
+.deaths-text {
+    color: #ff073a;
+    font-weight: 500;
+}
+
+.confirmed-text-sm {
+    color: #6C757D;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+
+.active-text-sm {
+    color: orange;
+    font-size: 12px;
+    font-weight: 500;
+    height: 18px;
+}
+
+
+.recovered-text-sm {
+    color: #28a745;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+
+.deaths-text-sm {
+    color: #ff073a;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.confirmed-title {
+    color: #6C757D;
+    font-weight: 500;
+}
+
+
+.active-title {
+    color: orange;
+    font-weight: 500;
+}
+
+
+.recovered-title {
+    color: #28a745;
+    font-weight: 500;
+}
+
+
+.deaths-title {
+    color: #ff073a;
+    font-weight: 500;
+}
+
+.toggle-container {
+    /* border: 1px solid red; */
+    height: 30px;
+}
+
+.toggle-container >span {
+    font-size: 13px;
+    margin-right: 10px;
+    color: #666;
+}
+
+.switch-wrapper {
+    height: 30px;
+    /* border-top: 1px solid  #f2f2f2; */
+    /* border: 1px solid green; */
+}
+
+
+.ag-card {
+    padding: 5px;
+}
+
+.card {
+    background-color: #343a40;
+}
+
+.expand-card {
+    animation: expand-height 1s ;
+}
+
+.collapse-card {
+    height: 0px;
+}
+
+@keyframes expand-height {
+    from {max-height: 0px}
+    to {max-height: 700px}
+}
+
+.expand-button {
+    color: #6C757D;
+    text-align: center;
+    /* text-decoration: underline; */
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+  
