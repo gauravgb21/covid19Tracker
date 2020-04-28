@@ -35,7 +35,24 @@ class App extends Component {
       rowData : [],
       showFade : false,
       expandWorld : false,
-      expandInd : false
+      expandInd : false,
+      districtLevelData : {},
+      rowDataForDist : [],
+      showDist : false,
+      distCode : '',
+      xDataForConfirmed : [],
+      seriesForConfirmed : [],
+      xDataForRecovered : [],
+      seriesForRecovered : [],
+      xDataForDeaths : [],
+      seriesForDeaths : [],
+      xDataForConfirmedInIndia : [],
+      seriesForConfirmedInIndia : [],
+      xDataForRecoveredInIndia : [],
+      seriesForRecoveredInIndia : [],
+      xDataForDeathsInIndia : [],
+      seriesForDeathsInIndia : [],
+      distRowData : []
     }
   }
 
@@ -109,9 +126,37 @@ class App extends Component {
       }
     })
     .then((res) => res.json())
-    .then((result) => {
+    .then((result) => {  
+      let xDataForConfirmed = [];
+      let seriesForConfirmed = [];
+
+      let xDataForRecovered = [];
+      let seriesForRecovered = [];
+
+      let xDataForDeaths = [];
+      let seriesForDeaths = [];
+      if(Object.keys(result).length !== 0){
+        Object.keys(result.cases).forEach((data) => {
+          xDataForConfirmed.push(data);
+          seriesForConfirmed.push(result.cases[data]);
+        });
+        Object.keys(result.recovered).forEach((data) => {
+          xDataForRecovered.push(data);
+          seriesForRecovered.push(result.recovered[data]);
+        });
+  
+        Object.keys(result.deaths).forEach((data) => {
+          xDataForDeaths.push(data);
+          seriesForDeaths.push(result.deaths[data]);
+        }); 
+      }  
       this.setState({
-        historyDataForWorld : result
+        xDataForConfirmed : xDataForConfirmed,
+        seriesForConfirmed : seriesForConfirmed,
+        xDataForRecovered : xDataForRecovered,
+        seriesForRecovered : seriesForRecovered,
+        xDataForDeaths : xDataForDeaths,
+        seriesForDeaths : seriesForDeaths
       });
     })
     .catch((err) => {
@@ -125,8 +170,36 @@ class App extends Component {
     })
     .then((res) => res.json())
     .then((result) => {
+      let xDataForConfirmedInIndia = [];
+      let seriesForConfirmedInIndia = [];
+
+      let xDataForRecoveredInIndia = [];
+      let seriesForRecoveredInIndia = [];
+
+      let xDataForDeathsInIndia = [];
+      let seriesForDeathsInIndia = [];
+      if(Object.keys(result).length !== 0){
+        Object.keys(result.timeline.cases).forEach((data) => {
+          xDataForConfirmedInIndia.push(data);
+          seriesForConfirmedInIndia.push(result.timeline.cases[data]);
+        });
+        Object.keys(result.timeline.recovered).forEach((data) => {
+          xDataForRecoveredInIndia.push(data);
+          seriesForRecoveredInIndia.push(result.timeline.recovered[data]);
+        });
+  
+        Object.keys(result.timeline.deaths).forEach((data) => {
+          xDataForDeathsInIndia.push(data);
+          seriesForDeathsInIndia.push(result.timeline.deaths[data]);
+        }); 
+      }  
       this.setState({
-        historyDataForIndia : result
+        xDataForConfirmedInIndia : xDataForConfirmedInIndia,
+        seriesForConfirmedInIndia : seriesForConfirmedInIndia,
+        xDataForRecoveredInIndia : xDataForRecoveredInIndia,
+        seriesForRecoveredInIndia : seriesForRecoveredInIndia,
+        xDataForDeathsInIndia : xDataForDeathsInIndia,
+        seriesForDeathsInIndia : seriesForDeathsInIndia
       });
     });
 
@@ -136,8 +209,44 @@ class App extends Component {
     .then((res) => res.json())
     .then((result) => {
       console.log("for statewise it's ",result);
+      let rowDataForStates = [];
+      result.statewise.forEach((data,ind) => {
+          let obj = {};
+          Object.keys(data).forEach((dataVal,indVal) => {
+            if(dataVal !== "lastupdatedtime" && dataVal !== "state" && dataVal !== "statecode"){
+              obj[dataVal] = parseInt(data[dataVal]);
+            }
+            else{
+              obj[dataVal] = data[dataVal];
+            }
+          });
+          rowDataForStates.push(obj);
+      });
+
       this.setState({
-        rowData : result.statewise
+        rowData : rowDataForStates
+      });
+    });
+
+    fetch('https://api.covid19india.org/state_district_wise.json')
+    .then((res) => res.json())
+    .then((result) => {
+      console.log("district wise it's ",result);
+      let arrForDist = [];
+      Object.keys(result).forEach((data,ind) => {
+            Object.keys(result[data]["districtData"]).forEach((distName) => {
+              let rowObjForDistrict = {};
+              rowObjForDistrict["state"] = distName;
+              rowObjForDistrict["statecode"] = result[data]["statecode"];
+              rowObjForDistrict["confirmed"] = result[data]["districtData"][distName].confirmed;
+              rowObjForDistrict["active"] = result[data]["districtData"][distName].active;
+              rowObjForDistrict["deaths"] = result[data]["districtData"][distName].deceased;
+              rowObjForDistrict["recovered"] = result[data]["districtData"][distName].recovered;
+              arrForDist.push(rowObjForDistrict);
+            });
+      });
+      this.setState({
+        rowDataForDist : arrForDist
       });
     });
     
@@ -169,71 +278,32 @@ class App extends Component {
     });
   }
 
-  render(){
-    let xDataForConfirmed = [];
-    let seriesForConfirmed = [];
-
-    let xDataForRecovered = [];
-    let seriesForRecovered = [];
-
-    let xDataForDeaths = [];
-    let seriesForDeaths = [];
-
-    // Data for India 
-
-    let xDataForConfirmedInIndia = [];
-    let seriesForConfirmedInIndia = [];
-
-    let xDataForRecoveredInIndia = [];
-    let seriesForRecoveredInIndia = [];
-
-    let xDataForDeathsInIndia = [];
-    let seriesForDeathsInIndia = [];
-
-    if(Object.keys(this.state.historyDataForWorld).length !== 0){
-      Object.keys(this.state.historyDataForWorld.cases).forEach((data) => {
-        xDataForConfirmed.push(data);
-        seriesForConfirmed.push(this.state.historyDataForWorld.cases[data]);
+  handleStateNameClick = (stateName) => {
+    if(stateName !== 'Total'){
+      let stateCode = ' ';
+      this.state.rowData.forEach((data) => {
+        if(data.state === stateName){
+          stateCode = data.statecode;
+        }
       });
-      Object.keys(this.state.historyDataForWorld.recovered).forEach((data) => {
-        xDataForRecovered.push(data);
-        seriesForRecovered.push(this.state.historyDataForWorld.recovered[data]);
+      let newData = this.state.rowDataForDist.filter((data) => data.statecode === stateCode);
+      this.setState({
+        distRowData : newData,
+        showDist : true
       });
-
-      Object.keys(this.state.historyDataForWorld.deaths).forEach((data) => {
-        xDataForDeaths.push(data);
-        seriesForDeaths.push(this.state.historyDataForWorld.deaths[data]);
-      }); 
     }
+  }
 
-    if(Object.keys(this.state.historyDataForIndia).length !== 0){
-      Object.keys(this.state.historyDataForIndia.timeline.cases).forEach((data) => {
-        xDataForConfirmedInIndia.push(data);
-        seriesForConfirmedInIndia.push(this.state.historyDataForIndia.timeline.cases[data]);
-      });
-      Object.keys(this.state.historyDataForIndia.timeline.recovered).forEach((data) => {
-        xDataForRecoveredInIndia.push(data);
-        seriesForRecoveredInIndia.push(this.state.historyDataForIndia.timeline.recovered[data]);
-      });
-
-      Object.keys(this.state.historyDataForIndia.timeline.deaths).forEach((data) => {
-        xDataForDeathsInIndia.push(data);
-        seriesForDeathsInIndia.push(this.state.historyDataForIndia.timeline.deaths[data]);
-      }); 
-    }
-
-    let rowDataForStates = [];
-    let totalRow = [];
-
-    let  totalCases,totalActive,totalDeath,totalRecovered,deltaCases,deltaDeaths,deltaRecovered;
-
-    this.state.rowData.forEach((data,ind) => {
-      if(ind !== 0){
-        rowDataForStates.push(data);
-      }
+  handleBackNav = () => {
+    this.setState({
+      showDist : false
     });
+  }
 
-    if(rowDataForStates.length > 0){
+  render(){
+    let totalRow = [];
+    let  totalCases,totalActive,totalDeath,totalRecovered,deltaCases,deltaDeaths,deltaRecovered;
+    if(this.state.rowData.length > 0){
       totalCases=this.state.rowData[0].confirmed;
       totalActive=this.state.rowData[0].active;
       totalDeath=this.state.rowData[0].deaths;
@@ -244,9 +314,12 @@ class App extends Component {
       totalRow.push(this.state.rowData[0]);
     }
 
+    let stateAffected = 0 , distAffected = this.state.rowDataForDist.length;
+    this.state.rowData.forEach((data) => data.confirmed !== 0 ? (data.statecode !== 'TT' ? stateAffected++ : '') : '');
+
     return(
       <div className='container-fluid p-0'>
-        <nav className="navbar navbar-expand-lg navbar-dark mb-2" style={{'backgroundColor':'#323754'}}>
+        <nav className="navbar navbar-expand-lg navbar-dark mb-2" style={{'backgroundColor':'#202336'}}>
           <a className="navbar-brand" href="#">Covid19 Tracker</a>
           <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
@@ -297,24 +370,24 @@ class App extends Component {
                       />      
                       <LineChart 
                       title={'Confirmed'}
-                      xData={xDataForConfirmed}
-                      seriesData={seriesForConfirmed}
+                      xData={this.state.xDataForConfirmed}
+                      seriesData={this.state.seriesForConfirmed}
                       lineColor={['#6C757D']}
                       gridColor={['rgba(108,117,125,.0627451)','rgba(108,117,125,.0627451)']}
                       showLogarithmic={this.state.checkedForWorld}
                       />
                       <LineChart title={'Recovered'}
                       title={'Recovered'}
-                      xData={xDataForRecovered}
-                      seriesData={seriesForRecovered}
+                      xData={this.state.xDataForRecovered}
+                      seriesData={this.state.seriesForRecovered}
                       lineColor={['#28a745']}
                       gridColor={['rgba(40,167,69,.12549)','rgba(40,167,69,.12549)']}
                       showLogarithmic={this.state.checkedForWorld}
                       />
                       <LineChart title={'Deaths'}
                       title={'Deaths'}
-                      xData={xDataForDeaths}
-                      seriesData={seriesForDeaths}
+                      xData={this.state.xDataForDeaths}
+                      seriesData={this.state.seriesForDeaths}
                       lineColor={['#ff073a']}
                       gridColor={['rgba(255,7,58,.12549)','rgba(255,7,58,.12549)']}
                       showLogarithmic={this.state.checkedForWorld}
@@ -361,24 +434,24 @@ class App extends Component {
                         />
                         <LineChart 
                           title={'Confirmed'}
-                          xData={xDataForConfirmedInIndia}
-                          seriesData={seriesForConfirmedInIndia}
+                          xData={this.state.xDataForConfirmedInIndia}
+                          seriesData={this.state.seriesForConfirmedInIndia}
                           lineColor={['#6C757D']}
                           gridColor={['rgba(108,117,125,.0627451)','rgba(108,117,125,.0627451)']}
                           showLogarithmic={this.state.checkedForIndia}
                         />
                         <LineChart title={'Recovered'}
                         title={'Recovered'}
-                        xData={xDataForRecoveredInIndia}
-                        seriesData={seriesForRecoveredInIndia}
+                        xData={this.state.xDataForRecoveredInIndia}
+                        seriesData={this.state.seriesForRecoveredInIndia}
                         lineColor={['#28a745']}
                         gridColor={['rgba(40,167,69,.12549)','rgba(40,167,69,.12549)']}
                         showLogarithmic={this.state.checkedForIndia}
                         />
                         <LineChart title={'Deaths'}
                         title={'Deaths'}
-                        xData={xDataForDeathsInIndia}
-                        seriesData={seriesForDeathsInIndia}
+                        xData={this.state.xDataForDeathsInIndia}
+                        seriesData={this.state.seriesForDeathsInIndia}
                         lineColor={['#ff073a']}
                         gridColor={['rgba(255,7,58,.12549)','rgba(255,7,58,.12549)']}
                         showLogarithmic={this.state.checkedForIndia}
@@ -391,12 +464,32 @@ class App extends Component {
             </div>
           </div>
           <div className='col-md-12 col-sm-12'>
-            <div className='card' >
+            <div className='card mb-2' >
               <div className='ag-card'>
                 <AgGridTable
-                rowData={rowDataForStates}
+                rowData={this.state.rowData}
                 totalRow={totalRow}
+                distData={this.state.distRowData}
+                showDist={this.state.showDist}
+                onBackNav={() => this.handleBackNav()}
+                onStateNameClick={(stateName) => this.handleStateNameClick(stateName)}
                 />
+              </div>
+            </div>
+          </div>
+          <div className='col-md-6 col-sm-12'>
+            <div className='card mb-2' >
+              <div className='card-body text-center'>
+                <div className='affected'>States/UTs Affected</div>
+                <div className='affected-val'>{stateAffected}</div>
+              </div>
+            </div>
+          </div>
+          <div className='col-md-6 col-sm-12'>
+            <div className='card mb-2' >
+              <div className='card-body text-center'>
+                <div className='affected'>Districts Affected</div>
+                <div className='affected-val'>{distAffected}</div>
               </div>
             </div>
           </div>

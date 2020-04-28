@@ -4,3 +4,20 @@
     font-weight: 500;
     margin-bottom: 5px;
 }
+
+.back-button {
+    color: #3370E2;
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
+    /* border: 1px solid white; */
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.info-title {
+    text-align: center;
+    color: #6C757D;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
