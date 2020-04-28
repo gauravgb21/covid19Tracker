@@ -5,8 +5,11 @@ import LineChart from './components/LineChart';
 import SwitchToggle from './components/SwitchToggle';
 import AgGridTable from './components/AgGridTable';
 
+import BounceLoader from "react-spinners/BounceLoader";
+
 import './styles/app.css';
 import './styles/cardcontent.css';
+const override = `position:absolute;z-index:1;top:50%;left:50%;transform:translate(-50%,-50%)`;
 
 class App extends Component {
   constructor(props){
@@ -52,7 +55,8 @@ class App extends Component {
       seriesForRecoveredInIndia : [],
       xDataForDeathsInIndia : [],
       seriesForDeathsInIndia : [],
-      distRowData : []
+      distRowData : [],
+      showLoadmask : true
     }
   }
 
@@ -71,7 +75,8 @@ class App extends Component {
         totalRecoveredWorld : result.recovered,
         todayCasesWorld : result.todayCases,
         todayDeathsWorld : result.todayDeaths,
-        showFade : true
+        showFade : true,
+        showLoadmask : false
       });
     });
     fetch('https://corona.lmao.ninja/v2/all?yesterday=true',{
@@ -318,183 +323,201 @@ class App extends Component {
     this.state.rowData.forEach((data) => data.confirmed !== 0 ? (data.statecode !== 'TT' ? stateAffected++ : '') : '');
 
     return(
-      <div className='container-fluid p-0'>
-        <nav className="navbar navbar-expand-lg navbar-dark mb-2" style={{'backgroundColor':'#202336'}}>
-          <a className="navbar-brand" href="#">Covid19 Tracker</a>
-          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav mr-auto">
-              <li className="nav-item active">
-                <a className="nav-link" href="#">Dashboard <span class="sr-only">(current)</span></a>
-              </li>
-            </ul>
+      <React.Fragment>
+        {
+          (this.state.showLoadmask) && (    
+          <div className='loadmask'>
+          <BounceLoader
+          css={override}
+          size={50}
+          color={"#d9d9d9"}
+          loading={true}
+          />
           </div>
-        </nav>
-        <div className='row  no-gutters'>
-          <div className='col-sm-12 col-md-6'>
-            <div className='card mb-3'>
-              <div className='card-body text-center'>
-                <h6 style={{'color':'#6C757D'}}>World</h6>
-                <TotalCases 
-                    totalCases={this.state.totalCasesWorld}
-                    totalActive={this.state.totalActiveWorld}
-                    totalDeath={this.state.totalDeathWorld}
-                    totalRecovered={this.state.totalRecoveredWorld}
-                    deltaCases={this.state.todayCasesWorld}
-                    deltaDeaths={this.state.todayDeathsWorld}
-                    deltaRecovered={this.state.totalRecoveredWorld - this.state.yesRecoveredWorld}
-                    className={this.state.showFade ? 'fade':''}
-                    onAnimationEnd={() => this.setState({ showFade: false })}
-                />
-                <div className='expand-button'>
-                {
-                    (this.state.expandWorld) && (
-                      <i onClick={() => this.toggleCard()} className="fa fa-angle-double-up" style={{"font-size":"24px"}}></i>    
-                    )
-                  }
-                  {
-                    (!this.state.expandWorld) && (
-                      <i onClick={() => this.toggleCard()} className="fa fa-angle-double-down" style={{"font-size":"24px"}}></i>    
-                    )
-                  }
+          )
+        }
+        {
+          (!this.state.showLoadmask) && (
+            <div className='container-fluid p-0'>
+              <nav className="navbar navbar-expand-lg navbar-dark mb-2" style={{'backgroundColor':'#202336'}}>
+                <a className="navbar-brand" href="#">Covid19 Tracker</a>
+                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul className="navbar-nav mr-auto">
+                    <li className="nav-item active">
+                      <a className="nav-link" href="#">Dashboard <span class="sr-only">(current)</span></a>
+                    </li>
+                  </ul>
                 </div>
-                <div className={this.state.expandWorld ? 'expand-card' : 'collapse-card'}>
-                  {
-                    (this.state.expandWorld) && ( 
-                      <React.Fragment>         
-                      <SwitchToggle 
-                      checked={this.state.checkedForWorld}
-                      onSwitchToggle={(checked) => this.handleSwitchToggle(checked)}
-                      />      
-                      <LineChart 
-                      title={'Confirmed'}
-                      xData={this.state.xDataForConfirmed}
-                      seriesData={this.state.seriesForConfirmed}
-                      lineColor={['#6C757D']}
-                      gridColor={['rgba(108,117,125,.0627451)','rgba(108,117,125,.0627451)']}
-                      showLogarithmic={this.state.checkedForWorld}
+              </nav>
+              <div className='row  no-gutters'>
+                <div className='col-sm-12 col-md-6'>
+                  <div className='card mb-3'>
+                    <div className='card-body text-center'>
+                      <h6 style={{'color':'#6C757D'}}>World</h6>
+                      <TotalCases 
+                          totalCases={this.state.totalCasesWorld}
+                          totalActive={this.state.totalActiveWorld}
+                          totalDeath={this.state.totalDeathWorld}
+                          totalRecovered={this.state.totalRecoveredWorld}
+                          deltaCases={this.state.todayCasesWorld}
+                          deltaDeaths={this.state.todayDeathsWorld}
+                          deltaRecovered={this.state.totalRecoveredWorld - this.state.yesRecoveredWorld}
+                          className={this.state.showFade ? 'fade':''}
+                          onAnimationEnd={() => this.setState({ showFade: false })}
                       />
-                      <LineChart title={'Recovered'}
-                      title={'Recovered'}
-                      xData={this.state.xDataForRecovered}
-                      seriesData={this.state.seriesForRecovered}
-                      lineColor={['#28a745']}
-                      gridColor={['rgba(40,167,69,.12549)','rgba(40,167,69,.12549)']}
-                      showLogarithmic={this.state.checkedForWorld}
+                      <div className='expand-button'>
+                      {
+                          (this.state.expandWorld) && (
+                            <i onClick={() => this.toggleCard()} className="fa fa-angle-double-up" style={{"font-size":"24px"}}></i>    
+                          )
+                        }
+                        {
+                          (!this.state.expandWorld) && (
+                            <i onClick={() => this.toggleCard()} className="fa fa-angle-double-down" style={{"font-size":"24px"}}></i>    
+                          )
+                        }
+                      </div>
+                      <div className={this.state.expandWorld ? 'expand-card' : 'collapse-card'}>
+                        {
+                          (this.state.expandWorld) && ( 
+                            <React.Fragment>         
+                            <SwitchToggle 
+                            checked={this.state.checkedForWorld}
+                            onSwitchToggle={(checked) => this.handleSwitchToggle(checked)}
+                            />      
+                            <LineChart 
+                            title={'Confirmed'}
+                            xData={this.state.xDataForConfirmed}
+                            seriesData={this.state.seriesForConfirmed}
+                            lineColor={['#6C757D']}
+                            gridColor={['rgba(108,117,125,.0627451)','rgba(108,117,125,.0627451)']}
+                            showLogarithmic={this.state.checkedForWorld}
+                            />
+                            <LineChart title={'Recovered'}
+                            title={'Recovered'}
+                            xData={this.state.xDataForRecovered}
+                            seriesData={this.state.seriesForRecovered}
+                            lineColor={['#28a745']}
+                            gridColor={['rgba(40,167,69,.12549)','rgba(40,167,69,.12549)']}
+                            showLogarithmic={this.state.checkedForWorld}
+                            />
+                            <LineChart title={'Deaths'}
+                            title={'Deaths'}
+                            xData={this.state.xDataForDeaths}
+                            seriesData={this.state.seriesForDeaths}
+                            lineColor={['#ff073a']}
+                            gridColor={['rgba(255,7,58,.12549)','rgba(255,7,58,.12549)']}
+                            showLogarithmic={this.state.checkedForWorld}
+                            />
+                            </React.Fragment>
+                          )
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='col-sm-12 col-md-6'>
+                  <div className='card mb-2'>
+                  <div className='card-body text-center'>
+                      <h6 style={{'color':'#6C757D'}}>India</h6>
+                      <TotalCases 
+                        totalCases={totalCases}
+                        totalActive={totalActive}
+                        totalDeath={totalDeath}
+                        totalRecovered={totalRecovered}
+                        deltaCases={deltaCases}
+                        deltaDeaths={deltaDeaths}
+                        deltaRecovered={deltaRecovered}
                       />
-                      <LineChart title={'Deaths'}
-                      title={'Deaths'}
-                      xData={this.state.xDataForDeaths}
-                      seriesData={this.state.seriesForDeaths}
-                      lineColor={['#ff073a']}
-                      gridColor={['rgba(255,7,58,.12549)','rgba(255,7,58,.12549)']}
-                      showLogarithmic={this.state.checkedForWorld}
+                      <div className='expand-button'>
+                        {
+                          (this.state.expandInd) && (
+                            <i className="fa fa-angle-double-up" style={{"font-size":"24px"}} onClick={() => this.toggleCardInd()}></i>    
+                          )
+                        }
+                        {
+                          (!this.state.expandInd) && (
+                            <i className="fa fa-angle-double-down" style={{"font-size":"24px"}} onClick={() => this.toggleCardInd()}></i>    
+                          )
+                        }
+                      </div>
+                      <div className={this.state.expandInd ? 'expand-card' : 'collapse-card'}>
+                        {
+                          (this.state.expandInd) && (
+                            <React.Fragment>
+                              <SwitchToggle 
+                              checked={this.state.checkedForIndia}
+                              onSwitchToggle={(checked) => this.handleSwitchToggleForIndia(checked)}
+                              />
+                              <LineChart 
+                                title={'Confirmed'}
+                                xData={this.state.xDataForConfirmedInIndia}
+                                seriesData={this.state.seriesForConfirmedInIndia}
+                                lineColor={['#6C757D']}
+                                gridColor={['rgba(108,117,125,.0627451)','rgba(108,117,125,.0627451)']}
+                                showLogarithmic={this.state.checkedForIndia}
+                              />
+                              <LineChart title={'Recovered'}
+                              title={'Recovered'}
+                              xData={this.state.xDataForRecoveredInIndia}
+                              seriesData={this.state.seriesForRecoveredInIndia}
+                              lineColor={['#28a745']}
+                              gridColor={['rgba(40,167,69,.12549)','rgba(40,167,69,.12549)']}
+                              showLogarithmic={this.state.checkedForIndia}
+                              />
+                              <LineChart title={'Deaths'}
+                              title={'Deaths'}
+                              xData={this.state.xDataForDeathsInIndia}
+                              seriesData={this.state.seriesForDeathsInIndia}
+                              lineColor={['#ff073a']}
+                              gridColor={['rgba(255,7,58,.12549)','rgba(255,7,58,.12549)']}
+                              showLogarithmic={this.state.checkedForIndia}
+                              />
+                            </React.Fragment>
+                          )
+                        }  
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='col-md-12 col-sm-12'>
+                  <div className='card mb-2' >
+                    <div className='ag-card'>
+                      <AgGridTable
+                      rowData={this.state.rowData}
+                      totalRow={totalRow}
+                      distData={this.state.distRowData}
+                      showDist={this.state.showDist}
+                      onBackNav={() => this.handleBackNav()}
+                      onStateNameClick={(stateName) => this.handleStateNameClick(stateName)}
                       />
-                      </React.Fragment>
-                    )
-                  }
+                    </div>
+                  </div>
+                </div>
+                <div className='col-md-6 col-sm-12'>
+                  <div className='card mb-2' >
+                    <div className='card-body text-center'>
+                      <div className='affected'>States/UTs Affected</div>
+                      <div className='affected-val'>{stateAffected}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className='col-md-6 col-sm-12'>
+                  <div className='card mb-2' >
+                    <div className='card-body text-center'>
+                      <div className='affected'>Districts Affected</div>
+                      <div className='affected-val'>{distAffected}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className='col-sm-12 col-md-6'>
-            <div className='card mb-2'>
-            <div className='card-body text-center'>
-                <h6 style={{'color':'#6C757D'}}>India</h6>
-                <TotalCases 
-                   totalCases={totalCases}
-                   totalActive={totalActive}
-                   totalDeath={totalDeath}
-                   totalRecovered={totalRecovered}
-                   deltaCases={deltaCases}
-                   deltaDeaths={deltaDeaths}
-                   deltaRecovered={deltaRecovered}
-                />
-                <div className='expand-button'>
-                  {
-                    (this.state.expandInd) && (
-                      <i className="fa fa-angle-double-up" style={{"font-size":"24px"}} onClick={() => this.toggleCardInd()}></i>    
-                    )
-                  }
-                  {
-                    (!this.state.expandInd) && (
-                      <i className="fa fa-angle-double-down" style={{"font-size":"24px"}} onClick={() => this.toggleCardInd()}></i>    
-                    )
-                  }
-                </div>
-                <div className={this.state.expandInd ? 'expand-card' : 'collapse-card'}>
-                  {
-                    (this.state.expandInd) && (
-                      <React.Fragment>
-                        <SwitchToggle 
-                        checked={this.state.checkedForIndia}
-                        onSwitchToggle={(checked) => this.handleSwitchToggleForIndia(checked)}
-                        />
-                        <LineChart 
-                          title={'Confirmed'}
-                          xData={this.state.xDataForConfirmedInIndia}
-                          seriesData={this.state.seriesForConfirmedInIndia}
-                          lineColor={['#6C757D']}
-                          gridColor={['rgba(108,117,125,.0627451)','rgba(108,117,125,.0627451)']}
-                          showLogarithmic={this.state.checkedForIndia}
-                        />
-                        <LineChart title={'Recovered'}
-                        title={'Recovered'}
-                        xData={this.state.xDataForRecoveredInIndia}
-                        seriesData={this.state.seriesForRecoveredInIndia}
-                        lineColor={['#28a745']}
-                        gridColor={['rgba(40,167,69,.12549)','rgba(40,167,69,.12549)']}
-                        showLogarithmic={this.state.checkedForIndia}
-                        />
-                        <LineChart title={'Deaths'}
-                        title={'Deaths'}
-                        xData={this.state.xDataForDeathsInIndia}
-                        seriesData={this.state.seriesForDeathsInIndia}
-                        lineColor={['#ff073a']}
-                        gridColor={['rgba(255,7,58,.12549)','rgba(255,7,58,.12549)']}
-                        showLogarithmic={this.state.checkedForIndia}
-                        />
-                      </React.Fragment>
-                    )
-                  }  
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-md-12 col-sm-12'>
-            <div className='card mb-2' >
-              <div className='ag-card'>
-                <AgGridTable
-                rowData={this.state.rowData}
-                totalRow={totalRow}
-                distData={this.state.distRowData}
-                showDist={this.state.showDist}
-                onBackNav={() => this.handleBackNav()}
-                onStateNameClick={(stateName) => this.handleStateNameClick(stateName)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className='col-md-6 col-sm-12'>
-            <div className='card mb-2' >
-              <div className='card-body text-center'>
-                <div className='affected'>States/UTs Affected</div>
-                <div className='affected-val'>{stateAffected}</div>
-              </div>
-            </div>
-          </div>
-          <div className='col-md-6 col-sm-12'>
-            <div className='card mb-2' >
-              <div className='card-body text-center'>
-                <div className='affected'>Districts Affected</div>
-                <div className='affected-val'>{distAffected}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+          )
+        }
+      </React.Fragment>
     );
   }
 }
